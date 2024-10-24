@@ -186,38 +186,27 @@ double ET_evaluate(ExprTree tree)
 size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz)
 {
   assert(tree);
-
-
-  //
-  // TODO: Add your code here
-  size_t written = 0; // To keep track of how much has been written to the buffer
+    size_t offset = 0;
 
     if (tree->type == VALUE) {
-        // Write the value to the buffer, formatted to 2 decimal places
-        written = snprintf(buf, buf_sz, "%.2f", tree->n.value);
+        // Format the value into the buffer
+        offset += snprintf(buf + offset, buf_sz - offset, "%.2f", tree->n.value);
     } else {
-        // Write the left child to the buffer
-        written += ET_tree2string(tree->n.child[LEFT], buf + written, buf_sz - written);
-
-        // If there's enough space left in the buffer, write the operator
-        if (written < buf_sz) {
-            written += snprintf(buf + written, buf_sz - written, " %c ", ExprNodeType_to_char(tree->type));
+        // For operators, we need to add the left child, operator, and right child
+        if (tree->n.child[LEFT]) {
+            offset += ET_tree2string(tree->n.child[LEFT], buf + offset, buf_sz - offset);
         }
-
-        // Write the right child to the buffer
-        written += ET_tree2string(tree->n.child[RIGHT], buf + written, buf_sz - written);
+        
+        // Add the operator character
+        char op_char = ExprNodeType_to_char(tree->type);
+        offset += snprintf(buf + offset, buf_sz - offset, " %c ", op_char);
+        
+        if (tree->n.child[RIGHT]) {
+            offset += ET_tree2string(tree->n.child[RIGHT], buf + offset, buf_sz - offset);
+        }
     }
 
-    // Ensure the buffer is null-terminated
-    if (written < buf_sz) {
-        buf[written] = '\0';
-    } else if (buf_sz > 0) {
-        buf[buf_sz - 1] = '$'; // Indicate truncation if buffer size is exceeded
-        buf[buf_sz - 2] = '\0'; // Null-terminate
-    }
-
-    return written; // Return the number of characters written
-  //
+    return offset;
 }
 
 

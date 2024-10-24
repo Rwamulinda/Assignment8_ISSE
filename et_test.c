@@ -15,6 +15,10 @@
 
 #include "expr_tree.h"
 
+// Function declarations for the test functions
+int test_count();
+int test_depth();
+
 // Checks that value is true; if not, prints a failure message and
 // returns 0 from this function
 #define test_assert(value) {                                            \

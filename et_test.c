@@ -113,6 +113,44 @@ int test_tree2string()
   return 0;
 }
 
+// Define the test_count function
+int test_count() {
+    ExprTree tree = ET_node(OP_ADD, ET_value(1), ET_value(2));
+    test_assert(ET_count(tree) == 3); // 2 values + 1 operator
+    ET_free(tree);
+    
+    tree = ET_node(OP_MUL, ET_value(2), ET_node(OP_ADD, ET_value(3), ET_value(4)));
+    test_assert(ET_count(tree) == 5); // 3 values + 2 operators
+    ET_free(tree);
+
+    return 1;
+
+test_error:
+    ET_free(tree);
+    return 0;
+}
+
+// Define the test_depth function
+int test_depth() {
+    ExprTree tree = ET_value(10);
+    test_assert(ET_depth(tree) == 1); // Depth of a single value
+    ET_free(tree);
+
+    tree = ET_node(OP_SUB, ET_value(1), ET_value(2));
+    test_assert(ET_depth(tree) == 2); // Depth of a simple operation
+    ET_free(tree);
+
+    tree = ET_node(OP_ADD, ET_node(OP_MUL, ET_value(2), ET_value(3)), ET_value(4));
+    test_assert(ET_depth(tree) == 3); // Depth with nested operations
+    ET_free(tree);
+
+    return 1;
+
+test_error:
+    ET_free(tree);
+    return 0;
+}
+
   //
 
 int main()

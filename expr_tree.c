@@ -195,7 +195,7 @@ size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz)
         // Add opening parenthesis for the operator
         offset += snprintf(buf + offset, buf_sz - offset, "(");
 
-        // For operators, we need to add the left child, operator, and right child
+        // Process the left child
         if (tree->n.child[LEFT]) {
             offset += ET_tree2string(tree->n.child[LEFT], buf + offset, buf_sz - offset);
         }
@@ -204,12 +204,21 @@ size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz)
         char op_char = ExprNodeType_to_char(tree->type);
         offset += snprintf(buf + offset, buf_sz - offset, " %c ", op_char);
 
+        // Process the right child
         if (tree->n.child[RIGHT]) {
             offset += ET_tree2string(tree->n.child[RIGHT], buf + offset, buf_sz - offset);
         }
 
         // Add closing parenthesis for the operator
         offset += snprintf(buf + offset, buf_sz - offset, ")");
+    }
+
+    // Ensure the buffer is null-terminated
+    if (offset < buf_sz) {
+        buf[offset] = '\0';
+    } else if (buf_sz > 0) {
+        buf[buf_sz - 1] = '$'; // Indicate truncation
+        buf[buf_sz - 2] = '\0'; // Ensure null-termination
     }
 
     return offset;

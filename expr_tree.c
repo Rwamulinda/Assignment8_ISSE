@@ -185,33 +185,29 @@ double ET_evaluate(ExprTree tree)
 // Documented in .h file
 size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz)
 {
-  if (tree->type == VALUE) {
-        return snprintf(buf, buf_sz, "%g", tree->n.value);
+  if (buf_sz == 0) return 0;  // No space to write anything
+    assert(tree);
+
+    size_t len = 0;
+
+    if (tree->type == VALUE) {
+        len = snprintf(buf, buf_sz, "%.2f", tree->n.value);
+    } else {
+        char left_buf[buf_sz], right_buf[buf_sz];
+        size_t left_len = ET_tree2string(tree->n.child[LEFT], left_buf, buf_sz);
+        size_t right_len = ET_tree2string(tree->n.child[RIGHT], right_buf, buf_sz);
+
+        len = snprintf(buf, buf_sz, "(%s %c %s)",
+                       left_buf, ExprNodeType_to_char(tree->type), right_buf);
     }
 
-    char left_buf[128], right_buf[128];
-    ET_tree2string(tree->n.child[LEFT], left_buf, sizeof(left_buf));
-
-    if (tree->n.child[RIGHT] != NULL) {
-        ET_tree2string(tree->n.child[RIGHT], right_buf, sizeof(right_buf));
+    if (len >= buf_sz) {
+        buf[buf_sz - 2] = '$';  // Indicate truncation
+        buf[buf_sz - 1] = '\0';
+        return buf_sz - 1;
     }
 
-    switch (tree->type) {
-        case OP_ADD:
-            return snprintf(buf, buf_sz, "(%s + %s)", left_buf, right_buf);
-        case OP_SUB:
-            return snprintf(buf, buf_sz, "(%s - %s)", left_buf, right_buf);
-        case OP_MUL:
-            return snprintf(buf, buf_sz, "(%s * %s)", left_buf, right_buf);
-        case OP_DIV:
-            return snprintf(buf, buf_sz, "(%s / %s)", left_buf, right_buf);
-        case OP_POWER:
-            return snprintf(buf, buf_sz, "(%s ^ %s)", left_buf, right_buf);
-        case UNARY_NEGATE:
-            return snprintf(buf, buf_sz, "(-%s)", left_buf);
-        default:
-            return 0;
-    }
+    return len;
 }
 
 

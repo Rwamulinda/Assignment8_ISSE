@@ -194,9 +194,12 @@ size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz)
         len = snprintf(buf, buf_sz, "%.2f", tree->n.value);
     } else {
         char left_buf[buf_sz], right_buf[buf_sz];
-        size_t left_len = ET_tree2string(tree->n.child[LEFT], left_buf, buf_sz);
-        size_t right_len = ET_tree2string(tree->n.child[RIGHT], right_buf, buf_sz);
 
+        // Recursively convert children to strings
+        ET_tree2string(tree->n.child[LEFT], left_buf, buf_sz);
+        ET_tree2string(tree->n.child[RIGHT], right_buf, buf_sz);
+
+        // Format the current node as "(left op right)"
         len = snprintf(buf, buf_sz, "(%s %c %s)",
                        left_buf, ExprNodeType_to_char(tree->type), right_buf);
     }

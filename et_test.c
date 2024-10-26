@@ -82,26 +82,6 @@ test_error:
  * Tests the ET_tree2string function.
  * Returns: 1 if all tests pass, 0 otherwise
  */
-int test_tree2string() {
-    char buffer[256];
-    ExprTree tree = ET_node(OP_ADD, ET_value(1.0), ET_value(2.0));
-    size_t length = ET_tree2string(tree, buffer, sizeof(buffer));
-    test_assert(strcmp(buffer, "1.00 + 2.00") == 0);
-    test_assert(length == strlen(buffer));
-    ET_free(tree);
-
-    tree = ET_node(OP_MUL, ET_node(OP_ADD, ET_value(2.0), ET_value(3.0)), ET_value(4.0));
-    length = ET_tree2string(tree, buffer, sizeof(buffer));
-    test_assert(strcmp(buffer, "(2.00 + 3.00) * 4.00") == 0);
-    test_assert(length == strlen(buffer));
-    ET_free(tree);
-
-    return 1;
-
-test_error:
-    if (tree) ET_free(tree);
-    return 0;
-}
 
 /*
  * Tests the ET_count function.

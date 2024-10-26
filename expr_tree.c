@@ -185,43 +185,33 @@ double ET_evaluate(ExprTree tree)
 // Documented in .h file
 size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz)
 {
-  assert(tree);
-    size_t offset = 0;
-
-    if (tree->type == VALUE) {
-        // Format the value into the buffer
-        offset += snprintf(buf + offset, buf_sz - offset, "%.2f", tree->n.value);
-    } else {
-        // Add opening parenthesis for the operator
-        offset += snprintf(buf + offset, buf_sz - offset, "(");
-
-        // Process the left child
-        if (tree->n.child[LEFT]) {
-            offset += ET_tree2string(tree->n.child[LEFT], buf + offset, buf_sz - offset);
-        }
-
-        // Add the operator character
-        char op_char = ExprNodeType_to_char(tree->type);
-        offset += snprintf(buf + offset, buf_sz - offset, " %c ", op_char);
-
-        // Process the right child
-        if (tree->n.child[RIGHT]) {
-            offset += ET_tree2string(tree->n.child[RIGHT], buf + offset, buf_sz - offset);
-        }
-
-        // Add closing parenthesis for the operator
-        offset += snprintf(buf + offset, buf_sz - offset, ")");
+  if (tree->type == VALUE) {
+        return snprintf(buf, buf_sz, "%g", tree->n.value);
     }
 
-    // Ensure the buffer is null-terminated
-    if (offset < buf_sz) {
-        buf[offset] = '\0';
-    } else if (buf_sz > 0) {
-        buf[buf_sz - 1] = '$'; // Indicate truncation
-        buf[buf_sz - 2] = '\0'; // Ensure null-termination
+    char left_buf[128], right_buf[128];
+    ET_tree2string(tree->n.child[LEFT], left_buf, sizeof(left_buf));
+
+    if (tree->n.child[RIGHT] != NULL) {
+        ET_tree2string(tree->n.child[RIGHT], right_buf, sizeof(right_buf));
     }
 
-    return offset;
+    switch (tree->type) {
+        case OP_ADD:
+            return snprintf(buf, buf_sz, "(%s + %s)", left_buf, right_buf);
+        case OP_SUB:
+            return snprintf(buf, buf_sz, "(%s - %s)", left_buf, right_buf);
+        case OP_MUL:
+            return snprintf(buf, buf_sz, "(%s * %s)", left_buf, right_buf);
+        case OP_DIV:
+            return snprintf(buf, buf_sz, "(%s / %s)", left_buf, right_buf);
+        case OP_POWER:
+            return snprintf(buf, buf_sz, "(%s ^ %s)", left_buf, right_buf);
+        case UNARY_NEGATE:
+            return snprintf(buf, buf_sz, "(-%s)", left_buf);
+        default:
+            return 0;
+    }
 }
 
 

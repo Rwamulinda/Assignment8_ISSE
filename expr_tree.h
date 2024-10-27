@@ -3,7 +3,7 @@
  * 
  * A dynamically allocated tree to handle arbitrary expressions
  *
- * Author: <your name here>
+ * Author: <Uwase Pauline>
  */
 
 #ifndef _EXPR_TREE_H_

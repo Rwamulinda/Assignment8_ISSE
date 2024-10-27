@@ -4,7 +4,7 @@
  * A dynamically allocated tree to handle arbitrary arithmetic
  * expressions
  *
- * Author: <U>
+ * Author: <Uwase Pauline>
  */
 
 #include <stdio.h>

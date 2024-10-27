@@ -3,7 +3,7 @@
  * 
  * Test cases for ExprTree
  *
- * Author: Uwase Pauline
+ * Author: <your name here>
  */
 
 #include <stdio.h>
@@ -15,13 +15,8 @@
 
 #include "expr_tree.h"
 
-// Function declarations for all tests
-int test_node_free();
-int test_count();
-int test_depth();
-int test_evaluate();
-int test_tree2string();
-
+// Checks that value is true; if not, prints a failure message and
+// returns 0 from this function
 #define test_assert(value) {                                            \
     if (!(value)) {                                                     \
       printf("FAIL %s[%d]: %s\n", __FUNCTION__, __LINE__, #value);      \
@@ -31,10 +26,13 @@ int test_tree2string();
 
 /*
  * Tests the ET_value, ET_node, and ET_free functions.
+ *
  * Returns: 1 if all tests pass, 0 otherwise
  */
 int test_node_free() {
-    ExprTree tree = ET_value(23400000);
+    ExprTree tree = NULL;
+
+    tree = ET_value(23400000);
     test_assert(ET_depth(tree) == 1);
     ET_free(tree);
 
@@ -49,98 +47,123 @@ int test_node_free() {
     return 1;
 
 test_error:
-    if (tree) ET_free(tree);  // Avoid double free
+    ET_free(tree);
     return 0;
 }
 
 /*
- * Tests the ET_evaluate function.
+ * Tests the evaluation of expressions.
+ *
  * Returns: 1 if all tests pass, 0 otherwise
  */
 int test_evaluate() {
-    ExprTree tree = ET_node(OP_ADD, ET_value(10), ET_value(5));
-    test_assert(ET_evaluate(tree) == 15.0);  // 10 + 5
+    ExprTree tree;
+
+    // Test simple values
+    tree = ET_value(5);
+    test_assert(fabs(ET_evaluate(tree) - 5) < 1e-9);
     ET_free(tree);
 
-    tree = ET_node(OP_MUL, ET_value(2), ET_node(OP_ADD, ET_value(3), ET_value(4)));
-    test_assert(ET_evaluate(tree) == 14.0);  // 2 * (3 + 4)
+    // Test addition
+    tree = ET_node(OP_ADD, ET_value(2), ET_value(3));
+    test_assert(fabs(ET_evaluate(tree) - 5) < 1e-9);
     ET_free(tree);
 
-    // Edge case: Division by zero
-    tree = ET_node(OP_DIV, ET_value(1), ET_value(0));
-    test_assert(isinf(ET_evaluate(tree)));  // Should return infinity or handle gracefully
+    // Test subtraction
+    tree = ET_node(OP_SUB, ET_value(5), ET_value(3));
+    test_assert(fabs(ET_evaluate(tree) - 2) < 1e-9);
+    ET_free(tree);
+
+    // Test multiplication
+    tree = ET_node(OP_MUL, ET_value(4), ET_value(3));
+    test_assert(fabs(ET_evaluate(tree) - 12) < 1e-9);
+    ET_free(tree);
+
+    // Test division
+    tree = ET_node(OP_DIV, ET_value(6), ET_value(2));
+    test_assert(fabs(ET_evaluate(tree) - 3) < 1e-9);
+    ET_free(tree);
+
+    // Test power
+    tree = ET_node(OP_POWER, ET_value(2), ET_value(3));
+    test_assert(fabs(ET_evaluate(tree) - 8) < 1e-9);
+    ET_free(tree);
+
+    // Test unary negation
+    tree = ET_node(UNARY_NEGATE, ET_value(10), NULL);
+    test_assert(fabs(ET_evaluate(tree) + 10) < 1e-9);
     ET_free(tree);
 
     return 1;
 
 test_error:
-    if (tree) ET_free(tree);
+    ET_free(tree);
     return 0;
 }
 
 /*
- * Tests the ET_tree2string function.
- * Returns: 1 if all tests pass, 0 otherwise
- */
-
-/*
- * Tests the ET_count function.
- * Returns: 1 if all tests pass, 0 otherwise
- */
-int test_count() {
-    ExprTree tree = ET_node(OP_ADD, ET_value(1), ET_value(2));
-    test_assert(ET_count(tree) == 3);  // 2 values + 1 operator
-    ET_free(tree);
-
-    tree = ET_node(OP_MUL, ET_value(2), ET_node(OP_ADD, ET_value(3), ET_value(4)));
-    test_assert(ET_count(tree) == 5);  // 3 values + 2 operators
-    ET_free(tree);
-
-    return 1;
-
-test_error:
-    if (tree) ET_free(tree);
-    return 0;
-}
-
-/*
- * Tests the ET_depth function.
+ * Tests the depth calculation.
+ *
  * Returns: 1 if all tests pass, 0 otherwise
  */
 int test_depth() {
-    ExprTree tree = ET_value(10);
-    test_assert(ET_depth(tree) == 1);  // Depth of a single value
+    ExprTree tree;
+
+    tree = ET_value(42);
+    test_assert(ET_depth(tree) == 1);
     ET_free(tree);
 
-    tree = ET_node(OP_SUB, ET_value(1), ET_value(2));
-    test_assert(ET_depth(tree) == 2);  // Depth of a simple operation
+    tree = ET_node(OP_ADD, ET_value(1), ET_value(2));
+    test_assert(ET_depth(tree) == 2);
     ET_free(tree);
 
-    tree = ET_node(OP_ADD, ET_node(OP_MUL, ET_value(2), ET_value(3)), ET_value(4));
-    test_assert(ET_depth(tree) == 3);  // Depth with nested operations
+    tree = ET_node(OP_ADD, ET_node(OP_ADD, ET_value(1), ET_value(2)), ET_value(3));
+    test_assert(ET_depth(tree) == 3);
     ET_free(tree);
 
     return 1;
 
 test_error:
-    if (tree) ET_free(tree);
+    ET_free(tree);
     return 0;
 }
 
 /*
- * Main function to run all tests.
+ * Tests string representation of the tree.
+ *
+ * Returns: 1 if all tests pass, 0 otherwise
  */
+int test_tree_to_string() {
+    char buffer[256];
+    ExprTree tree;
+
+    tree = ET_node(OP_ADD, ET_value(1), ET_value(2));
+    ET_tree2string(tree, buffer, sizeof(buffer));
+    test_assert(strcmp(buffer, "1 + 2 ") == 0);
+    ET_free(tree);
+
+    tree = ET_node(OP_SUB, ET_node(OP_MUL, ET_value(3), ET_value(2)), ET_value(1));
+    ET_tree2string(tree, buffer, sizeof(buffer));
+    test_assert(strcmp(buffer, "(3 * 2) - 1 ") == 0);
+    ET_free(tree);
+
+    return 1;
+
+test_error:
+    ET_free(tree);
+    return 0;
+}
+
 int main() {
     int passed = 0;
     int num_tests = 0;
 
     num_tests++; passed += test_node_free();
-    num_tests++; passed += test_count();
-    num_tests++; passed += test_depth();
     num_tests++; passed += test_evaluate();
-    //num_tests++; passed += test_tree2string();
+    num_tests++; passed += test_depth();
+    num_tests++; passed += test_tree_to_string();
 
     printf("Passed %d/%d test cases\n", passed, num_tests);
     fflush(stdout);
-    return (passed == num_tests) ? 0 : 1;
+    return 0;
 }

@@ -149,41 +149,32 @@ int ET_depth(ExprTree tree) {
 
 
 // Documented in .h file
-double ET_evaluate(ExprTree tree)
-{
-  assert(tree);
-
-
-  //
-  // TODO: Add your code here
-  switch (tree->type) {
-        case VALUE:
-            return tree->n.value; // Return the value of the leaf node
-
-        case UNARY_NEGATE:
-            return -ET_evaluate(tree->n.child[LEFT]); // Negate the value of the left child
-
-        case OP_ADD:
-            return ET_evaluate(tree->n.child[LEFT]) + ET_evaluate(tree->n.child[RIGHT]); // Addition
-
-        case OP_SUB:
-            return ET_evaluate(tree->n.child[LEFT]) - ET_evaluate(tree->n.child[RIGHT]); // Subtraction
-
-        case OP_MUL:
-            return ET_evaluate(tree->n.child[LEFT]) * ET_evaluate(tree->n.child[RIGHT]); // Multiplication
-
-        case OP_DIV:
-            return ET_evaluate(tree->n.child[LEFT]) / ET_evaluate(tree->n.child[RIGHT]); // Division
-
-        case OP_POWER:
-            return pow(ET_evaluate(tree->n.child[LEFT]), ET_evaluate(tree->n.child[RIGHT])); // Power
-
-        default:
-            return 0.0; // Unknown type
+double ET_evaluate(ExprTree tree) {
+    if (tree == NULL) {
+        // Handle the error case for a NULL tree
+        return 0;
     }
-  //
-  //return 0.0;
+    switch (tree->op) {
+        case OP_ADD:
+            return ET_evaluate(tree->left) + ET_evaluate(tree->right);
+        case OP_SUB:
+            return ET_evaluate(tree->left) - ET_evaluate(tree->right);
+        case OP_MUL:
+            return ET_evaluate(tree->left) * ET_evaluate(tree->right);
+        case OP_DIV:
+            // Handle division by zero
+            if (ET_evaluate(tree->right) == 0) {
+                printf("Error: Division by zero\n");
+                return 0; // Or return NAN;
+            }
+            return ET_evaluate(tree->left) / ET_evaluate(tree->right);
+        case UNARY_NEGATE:
+            return -ET_evaluate(tree->left);
+        default:
+            return tree->value; // Assuming value holds the number for leaf nodes
+    }
 }
+
 
 
 // Documented in .h file

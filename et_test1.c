@@ -104,7 +104,7 @@ int test_evaluate() {
 
     // Testing division by zero
     tree = ET_node(OP_DIV, ET_value(10), ET_value(0));
-    test_assert(ET_evaluate(tree) == 0); // Should print an error or handle gracefully
+    test_assert(isnan(ET_evaluate(tree))); // Check if it returns NaN
     ET_free(tree);
 
     // Testing unary negate
@@ -118,7 +118,6 @@ test_error:
     ET_free(tree);
     return 0;
 }
-
 /*
  * Tests the ET_tree2string function, including buffer handling.
  *

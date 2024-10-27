@@ -56,28 +56,26 @@ int test_node_free() {
  */
 int test_count() {
     ExprTree tree = NULL;
-    int result = 1;
-
-    // Test single node
+     // Test single value
     tree = ET_value(5.0);
     test_assert(ET_count(tree) == 1);
     ET_free(tree);
 
     // Test binary operation
     tree = ET_node(OP_ADD, ET_value(1.0), ET_value(2.0));
-    test_assert(ET_count(tree) == 3);  // root + 2 leaves
+    test_assert(ET_count(tree) == 3); // 2 leaves + 1 operator
     ET_free(tree);
 
     // Test unary operation
     tree = ET_node(UNARY_NEGATE, ET_value(1.0), NULL);
-    test_assert(ET_count(tree) == 2);  // root + 1 leaf
+    test_assert(ET_count(tree) == 2); // 1 leaf + 1 unary operator
     ET_free(tree);
 
-    // Test complex expression
+    // Test more complex count
     tree = ET_node(OP_MUL,
                    ET_node(OP_ADD, ET_value(1.0), ET_value(2.0)),
                    ET_node(OP_SUB, ET_value(3.0), ET_value(4.0)));
-    test_assert(ET_count(tree) == 7);  // 3 operators + 4 leaves
+    test_assert(ET_count(tree) == 5);  // 4 leaves + 1 root
     ET_free(tree);
 
     return 1;

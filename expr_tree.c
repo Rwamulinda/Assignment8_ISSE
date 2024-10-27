@@ -110,17 +110,35 @@ int ET_count(ExprTree tree)
 
 
 // Documented in .h file
-int ET_depth(ExprTree tree)
-{
-  assert(tree);
+//int ET_depth(ExprTree tree)
+//{
+  //assert(tree);
 
-  if (tree == NULL) return 0; // No tree has a depth of 0
+  //if (tree == NULL) return 0; // No tree has a depth of 0
 
     // Depth of the current node is 1 + max depth of its children
-  int left_depth = ET_depth(tree->n.child[LEFT]);
-  int right_depth = ET_depth(tree->n.child[RIGHT]);
+ // int left_depth = ET_depth(tree->n.child[LEFT]);
+  //int right_depth = ET_depth(tree->n.child[RIGHT]);
 
-  return 1 + (left_depth > right_depth ? left_depth : right_depth);
+  //return 1 + (left_depth > right_depth ? left_depth : right_depth);
+
+int ET_depth(ExprTree tree) {
+    if (tree == NULL) { 
+        return 0; // Base case: depth of a NULL tree is 0
+    }
+
+    if (tree->type == VALUE) {
+        return 1; // A single leaf node has depth 1
+    }
+
+    // Recursively calculate the depth of left and right subtrees
+    int left_depth = ET_depth(tree->n.child[LEFT]);
+    int right_depth = ET_depth(tree->n.child[RIGHT]);
+
+    // Return the maximum depth of the two subtrees + 1 for the current node
+    return 1 + (left_depth > right_depth ? left_depth : right_depth);
+}
+
 
 
   //

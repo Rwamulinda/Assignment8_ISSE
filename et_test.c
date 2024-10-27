@@ -129,6 +129,14 @@ test_error:
     ET_free(tree);
     return 0;
 }
+void test_ET_value() {
+    ExprTree node = ET_value(5.0);
+    assert(node != NULL);
+    assert(node->type == VALUE);
+    assert(node->n.value == 5.0);
+    printf("test_ET_value passed\n");
+    ET_free(node);
+}
 
 int main() {
     int passed = 0;
@@ -138,6 +146,7 @@ int main() {
     num_tests++; passed += test_depth();
     num_tests++; passed += test_evaluate();
     num_tests++; passed += test_tree_to_string();
+    num_tests++; passed += test_ET_value();
 
     printf("Passed %d/%d test cases\n", passed, num_tests);
     fflush(stdout);

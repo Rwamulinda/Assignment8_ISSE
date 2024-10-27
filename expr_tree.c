@@ -55,39 +55,26 @@ static char ExprNodeType_to_char(ExprNodeType ent)
 
 
 // Documented in .h file
-ExprTree ET_value(double value)
-{
-  ExprTree new = (ExprTree) malloc(sizeof(struct _expr_tree_node));
-  assert(new);
-
-
-  //
-  // TODO: Add your code her
-
-  new->type = VALUE; // Set the type to VALUE
-  new->n.value = value; // Store the value in the unio
-
-  return new;
+ExprTree ET_value(double value) {
+    ExprTree new = (ExprTree) malloc(sizeof(struct _expr_tree_node));
+    assert(new); // Ensure memory was allocated
+    new->type = VALUE;
+    new->n.value = value; // Initialize the value
+    return new;
 }
 
-
-// Documented in .h file
-ExprTree ET_node(ExprNodeType op, ExprTree left, ExprTree right)
-{
-  ExprTree new = (ExprTree) malloc(sizeof(struct _expr_tree_node));
-  assert(new);
-
-  new->type = op; // Set the type to the operation
-  new->n.child[LEFT] = left; // Set the left child
-  new->n.child[RIGHT] = right; // Set the right child
-
-  return new;
-
+ExprTree ET_node(ExprNodeType op, ExprTree left, ExprTree right) {
+    ExprTree new = (ExprTree) malloc(sizeof(struct _expr_tree_node));
+    assert(new); // Ensure memory was allocated
+    new->type = op;
+    new->n.child[LEFT] = left; // Set the left child
+    new->n.child[RIGHT] = right; // Set the right child
+    return new;
+}
 
   //
   // TODO: Add your code here
-  //
-}
+  /
 
 
 // Documented in .h file

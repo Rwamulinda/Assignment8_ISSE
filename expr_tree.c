@@ -149,42 +149,46 @@ int ET_depth(ExprTree tree) {
 
 
 // Documented in .h file
-double ET_evaluate(ExprTree tree)
-{
-  assert(tree);
+double ET_evaluate(ExprTree tree) {
+    assert(tree); // Ensure the tree is not NULL
 
-
-  //
-  // TODO: Add your code here
-  switch (tree->type) {
+    // Switch based on the type of the expression node
+    switch (tree->type) {
         case VALUE:
             return tree->n.value; // Return the value of the leaf node
 
         case UNARY_NEGATE:
-            return -ET_evaluate(tree->n.child[LEFT]); // Negate the value of the left child
+            return -ET_evaluate(tree->n.child[0]); // Negate the value of the child
 
         case OP_ADD:
-            return ET_evaluate(tree->n.child[LEFT]) + ET_evaluate(tree->n.child[RIGHT]); // Addition
+            return ET_evaluate(tree->n.child[0]) + ET_evaluate(tree->n.child[1]); // Addition
 
         case OP_SUB:
-            return ET_evaluate(tree->n.child[LEFT]) - ET_evaluate(tree->n.child[RIGHT]); // Subtraction
+            return ET_evaluate(tree->n.child[0]) - ET_evaluate(tree->n.child[1]); // Subtraction
 
         case OP_MUL:
-            return ET_evaluate(tree->n.child[LEFT]) * ET_evaluate(tree->n.child[RIGHT]); // Multiplication
+            return ET_evaluate(tree->n.child[0]) * ET_evaluate(tree->n.child[1]); // Multiplication
 
-        case OP_DIV:
-            return ET_evaluate(tree->n.child[LEFT]) / ET_evaluate(tree->n.child[RIGHT]); // Division
+        case OP_DIV: {
+            double rightValue = ET_evaluate(tree->n.child[1]); // Evaluate right child
+            if (rightValue == 0.0) {
+                fprintf(stderr, "Error: Division by zero\n");
+                exit(EXIT_FAILURE); // Exit or handle error as appropriate
+            }
+            return ET_evaluate(tree->n.child[0]) / rightValue; // Division
+        }
 
         case OP_POWER:
-            return pow(ET_evaluate(tree->n.child[LEFT]), ET_evaluate(tree->n.child[RIGHT])); // Power
+            return pow(ET_evaluate(tree->n.child[0]), ET_evaluate(tree->n.child[1])); // Power
 
         default:
-            return 0.0; // Unknown type
+            fprintf(stderr, "Error: Unknown expression node type\n");
+            exit(EXIT_FAILURE); // Exit or handle unknown type
     }
-  //
-  //return 0.0;
-}
 
+    // Return 0.0 by default (this line should never be reached)
+    return 0.0;
+}
 
 // Documented in .h file
 size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz)

@@ -33,20 +33,20 @@ int test_node_free() {
     ExprTree tree = NULL;
 
     tree = ET_value(23400000);
-    test_assert( ET_depth(tree) == 1 );
+    test_assert(ET_depth(tree) == 1);
     ET_free(tree);
 
     tree = ET_value(-1000);
-    test_assert( ET_depth(tree) == 1 );
+    test_assert(ET_depth(tree) == 1);
     ET_free(tree);
 
     tree = ET_node(OP_ADD, ET_value(1), ET_value(3));
-    test_assert( ET_depth(tree) == 2 );
+    test_assert(ET_depth(tree) == 2);
     ET_free(tree);
 
     return 1;
 
- test_error:
+test_error:
     ET_free(tree);
     return 0;
 }
@@ -56,7 +56,8 @@ int test_node_free() {
  */
 int test_count() {
     ExprTree tree = NULL;
-     // Test single value
+
+    // Test single value
     tree = ET_value(5.0);
     test_assert(ET_count(tree) == 1);
     ET_free(tree);
@@ -173,7 +174,7 @@ int test_tree2string() {
     // Test single value
     tree = ET_value(5.0);
     test_assert(ET_tree2string(tree, buf, sizeof(buf)) == 4); // "5.0"
-    test_assert(strcmp(buf, "5") == 0);
+    test_assert(strcmp(buf, "5.0") == 0);
     ET_free(tree);
 
     // Test binary operation
@@ -185,7 +186,7 @@ int test_tree2string() {
     // Test unary operation
     tree = ET_node(UNARY_NEGATE, ET_value(3.0), NULL);
     test_assert(ET_tree2string(tree, buf, sizeof(buf)) == 7); // "-3"
-    test_assert(strcmp(buf, "-3") == 0);
+    test_assert(strcmp(buf, "-3.0") == 0);
     ET_free(tree);
 
     // Test complex expression

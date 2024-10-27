@@ -153,8 +153,33 @@ double ET_evaluate(ExprTree tree)
 
   //
   // TODO: Add your code here
+  switch (tree->type) {
+        case VALUE:
+            return tree->n.value; // Return the value of the leaf node
+
+        case UNARY_NEGATE:
+            return -ET_evaluate(tree->n.child[LEFT]); // Negate the value of the left child
+
+        case OP_ADD:
+            return ET_evaluate(tree->n.child[LEFT]) + ET_evaluate(tree->n.child[RIGHT]); // Addition
+
+        case OP_SUB:
+            return ET_evaluate(tree->n.child[LEFT]) - ET_evaluate(tree->n.child[RIGHT]); // Subtraction
+
+        case OP_MUL:
+            return ET_evaluate(tree->n.child[LEFT]) * ET_evaluate(tree->n.child[RIGHT]); // Multiplication
+
+        case OP_DIV:
+            return ET_evaluate(tree->n.child[LEFT]) / ET_evaluate(tree->n.child[RIGHT]); // Division
+
+        case OP_POWER:
+            return pow(ET_evaluate(tree->n.child[LEFT]), ET_evaluate(tree->n.child[RIGHT])); // Power
+
+        default:
+            return 0.0; // Unknown type
+    }
   //
-  return 0.0;
+  //return 0.0;
 }
 
 
@@ -162,6 +187,30 @@ double ET_evaluate(ExprTree tree)
 size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz)
 {
   assert(tree);
+
+  size_t written = 0;
+
+    if (tree->type == VALUE) {
+        written = snprintf(buf, buf_sz, "%.2f", tree->n.value); // Format the value
+    } else {
+        // If we have space, write the operator first
+        char op_char = ExprNodeType_to_char(tree->type);
+        written = snprintf(buf, buf_sz, "%c ", op_char);
+
+        // Check for remaining space and write the left and right children
+        size_t left_written = ET_tree2string(tree->n.child[LEFT], buf + written, buf_sz - written);
+        if (left_written < buf_sz - written) {
+            written += left_written;
+            written += snprintf(buf + written, buf_sz - written, " "); // Add space
+        }
+
+        size_t right_written = ET_tree2string(tree->n.child[RIGHT], buf + written, buf_sz - written);
+        if (right_written < buf_sz - written) {
+            written += right_written;
+        }
+    }
+
+    return written; // Return the total number of characters written
 
 
   //

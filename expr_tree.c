@@ -189,7 +189,7 @@ size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz)
   assert(buf);   // Ensure the buffer is not NULL.
 
   if (tree == NULL) {
-      snprintf(buf, buf_sz, "");  // Use buf_sz instead of bufsize
+      snprintf(buf, buf_sz, " ");  // Use buf_sz instead of bufsize
       return 0;
   }
 
@@ -199,13 +199,13 @@ size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz)
   if (tree->type != VALUE && tree->n.child[LEFT]) {
         ET_tree2string(tree->n.child[LEFT], left, sizeof(left));
   } else {
-        snprintf(left, sizeof(left), "");
+        snprintf(left, sizeof(left), " ");
   }
 
   if (tree->type != VALUE && tree->n.child[RIGHT]) {
         ET_tree2string(tree->n.child[RIGHT], right, sizeof(right));
   } else {
-        snprintf(right, sizeof(right), "");
+        snprintf(right, sizeof(right), " ");
   }
 
     // Handle different node types

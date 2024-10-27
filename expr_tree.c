@@ -188,30 +188,32 @@ size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz)
   // TODO: Add your code here
   assert(buf);   // Ensure the buffer is not NULL.
 
-  if (tree->type == VALUE) {  // Base case: Leaf node (value).
-      return snprintf(buf, buf_sz, "%.2f", tree->n.value);
-  }
+   if (tree == NULL) {
+        snprintf(buf, bufsize, "");
+        return 0;
+    }
 
-    // Create temporary buffers to hold left and right child strings.
-  char left_buf[buf_sz], right_buf[buf_sz];
+   char left[256], right[256];
+    // Removed the unused size variables
+   ET_tree2string(tree->n.child[LEFT], left, sizeof(left));
+   ET_tree2string(tree->n.child[RIGHT], right, sizeof(right));
 
-  size_t left_len = ET_tree2string(tree->n.child[LEFT], left_buf, buf_sz);
-  size_t right_len = ET_tree2string(tree->n.child[RIGHT], right_buf, buf_sz);
-
-    // Concatenate the strings with the operator.
-  size_t total_len = snprintf(
-    buf, buf_sz, "(%s %c %s)",
-    left_buf, ExprNodeType_to_char(tree->type), right_buf
-    );
-
-    // If the result is too large, truncate with '$'.
-  if (total_len >= buf_sz) {
-      buf[buf_sz - 2] = '$';
-      buf[buf_sz - 1] = '\0';
-      return buf_sz - 1;
-  }
-
-  return total_len;
+  switch (tree->type) {
+        case VALUE:
+            snprintf(buf, bufsize, "%f", tree->n.value);
+            return strlen(buf);
+        case OP_ADD:
+        case OP_SUB:
+        case OP_MUL:
+        case OP_DIV:
+            snprintf(buf, bufsize, "(%s %c %s)", left, ExprNodeType_to_char(tree->type), right);
+            return strlen(buf);
+        case UNARY_NEGATE:
+            snprintf(buf, bufsize, "-%s", left);
+            return strlen(buf);
+        default:
+            return 0; // Unsupported node type
+    }
   //
 }
 

@@ -146,7 +146,6 @@ int ET_depth(ExprTree tree) {
   //
 
   //return 0;
-}
 
 
 // Documented in .h file

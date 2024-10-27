@@ -88,7 +88,6 @@ ExprTree ET_value(double value)
         default:
             assert(0);
     }
-  return new;
 }
 
 

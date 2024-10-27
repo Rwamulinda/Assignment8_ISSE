@@ -63,17 +63,31 @@ ExprTree ET_value(double value)
   //
   // TODO: Add your code here
   // Set the node's type to VALUE
-    new->type = VALUE;
-
-    // Set the node's value
-    new->data.value = value;
-
-    // Since this is a leaf node representing a value, left and right children are NULL
-    new->left = NULL;
-    new->right = NULL;
-
-  //
-
+    switch (tree->type) {
+        case VALUE:
+            return tree->n.value; 
+        case UNARY_NEGATE:
+            return -ET_evaluate(tree->n.child[LEFT]); 
+        case OP_ADD:
+            return ET_evaluate(tree->n.child[LEFT]) + ET_evaluate(tree->n.child[RIGHT]);
+        case OP_SUB:
+            return ET_evaluate(tree->n.child[LEFT]) - ET_evaluate(tree->n.child[RIGHT]);
+        case OP_MUL:
+            return ET_evaluate(tree->n.child[LEFT]) * ET_evaluate(tree->n.child[RIGHT]);
+        case OP_DIV:
+            if (ET_evaluate(tree->n.child[RIGHT]) == 0) {
+                fprintf(stderr, "Error: Division by zero\n");
+                exit(1);
+            }
+            return ET_evaluate(tree->n.child[LEFT]) / ET_evaluate(tree->n.child[RIGHT]);
+        case OP_POWER: {
+            double base = ET_evaluate(tree->n.child[LEFT]);
+            double exponent = ET_evaluate(tree->n.child[RIGHT]);
+            return pow(base, exponent);
+        }
+        default:
+            assert(0);
+    }
   return new;
 }
 

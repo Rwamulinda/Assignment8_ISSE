@@ -40,24 +40,15 @@ static char ExprNodeType_to_char(ExprNodeType ent)
   //
   // TODO: Add your code here
 
-  switch (ent)
-    {
-        case VALUE:
-            return 'V'; // 'V' represents a numeric value
-        case PLUS:
-            return '+';
-        case MINUS:
-            return '-';
-        case MULTIPLY:
-            return '*';
-        case DIVIDE:
-            return '/';
-        case MOD:
-            return '%';
-        default:
-            return '?'; // Unknown type
-    }
-  //
+ switch (ent) {
+    case OP_ADD: return '+';
+    case OP_SUB: return '-';
+    case OP_MUL: return '*';
+    case OP_DIV: return '/';
+    case OP_POWER: return '^';
+    case UNARY_NEGATE: return '-';
+    default: return '?';  // Unknown type
+  }
 
 }
 

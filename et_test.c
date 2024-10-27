@@ -114,12 +114,12 @@ int test_tree_to_string() {
     char buffer[256];
 
     ExprTree tree = ET_node(OP_ADD, ET_value(2), ET_value(3));
-    size_t len = ET_tree2string(tree, buffer, sizeof(buffer));
+    ET_tree2string(tree, buffer, sizeof(buffer));
     test_assert(strcmp(buffer, "+ 2.00 3.00") == 0);
     ET_free(tree);
 
     tree = ET_node(OP_MUL, ET_node(OP_ADD, ET_value(1), ET_value(2)), ET_value(3));
-    len = ET_tree2string(tree, buffer, sizeof(buffer));
+    ET_tree2string(tree, buffer, sizeof(buffer));
     test_assert(strcmp(buffer, "* + 1.00 2.00 3.00") == 0);
     ET_free(tree);
 

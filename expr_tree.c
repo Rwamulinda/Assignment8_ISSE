@@ -188,33 +188,46 @@ size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz)
   // TODO: Add your code here
   assert(buf);   // Ensure the buffer is not NULL.
 
-   if (tree == NULL) {
-        snprintf(buf, bufsize, "");
-        return 0;
-    }
+  if (tree == NULL) {
+      snprintf(buf, buf_sz, "");  // Use buf_sz instead of bufsize
+      return 0;
+  }
 
-   char left[256], right[256];
-    // Removed the unused size variables
-   ET_tree2string(tree->n.child[LEFT], left, sizeof(left));
-   ET_tree2string(tree->n.child[RIGHT], right, sizeof(right));
+  char left[256], right[256];  // Temporary buffers for child expressions
 
+    // Generate string representations of left and right children (if any)
+  if (tree->type != VALUE && tree->n.child[LEFT]) {
+        ET_tree2string(tree->n.child[LEFT], left, sizeof(left));
+  } else {
+        snprintf(left, sizeof(left), "");
+  }
+
+  if (tree->type != VALUE && tree->n.child[RIGHT]) {
+        ET_tree2string(tree->n.child[RIGHT], right, sizeof(right));
+  } else {
+        snprintf(right, sizeof(right), "");
+  }
+
+    // Handle different node types
   switch (tree->type) {
         case VALUE:
-            snprintf(buf, bufsize, "%f", tree->n.value);
-            return strlen(buf);
+            snprintf(buf, buf_sz, "%.2f", tree->n.value);  // Print value with 2 decimal precision
+            break;
         case OP_ADD:
         case OP_SUB:
         case OP_MUL:
         case OP_DIV:
-            snprintf(buf, bufsize, "(%s %c %s)", left, ExprNodeType_to_char(tree->type), right);
-            return strlen(buf);
+            snprintf(buf, buf_sz, "(%s %c %s)", left, ExprNodeType_to_char(tree->type), right);
+            break;
         case UNARY_NEGATE:
-            snprintf(buf, bufsize, "-%s", left);
-            return strlen(buf);
+            snprintf(buf, buf_sz, "-%s", left);
+            break;
         default:
-            return 0; // Unsupported node type
+            snprintf(buf, buf_sz, "UNKNOWN");
+            break;
     }
-  //
+
+    return strlen(buf);
 }
 
 

@@ -115,12 +115,13 @@ void ET_free(ExprTree tree)
 int ET_count(ExprTree tree)
 {
   if (tree == NULL)
-    return 0;
+        return 0;
 
-  if (tree->type == VALUE)
-    return 1;
+    int left_count = ET_count(tree->n.child[LEFT]);
+    int right_count = ET_count(tree->n.child[RIGHT]);
+    printf("Node Type: %d, Left Count: %d, Right Count: %d\n", tree->type, left_count, right_count);
 
-  return 1 + ET_count(tree->n.child[LEFT]) + ET_count(tree->n.child[RIGHT]);
+    return 1 + left_count + right_count;
 }
 
 

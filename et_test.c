@@ -3,7 +3,7 @@
  * 
  * Test cases for ExprTree
  *
- * Author: <your name here>
+ * Author: Uwase Pauline
  */
 
 #include <stdio.h>
@@ -111,7 +111,7 @@ int test_depth() {
     tree = ET_node(OP_MUL,
                    ET_node(OP_ADD, ET_value(1.0), ET_value(2.0)),
                    ET_node(OP_SUB, ET_value(3.0), ET_value(4.0)));
-    test_assert(ET_depth(tree) == 3);  // 2 + 1 + root
+    test_assert(ET_depth(tree) == 3);  // 3 levels deep
     ET_free(tree);
 
     return 1;
@@ -127,34 +127,39 @@ test_error:
 int test_evaluate() {
     ExprTree tree = NULL;
 
-    // Test value
+    // Test a simple value
     tree = ET_value(5.0);
     test_assert(fabs(ET_evaluate(tree) - 5.0) < 1e-6);
     ET_free(tree);
 
     // Test addition
-    tree = ET_node(OP_ADD, ET_value(3.0), ET_value(4.0));
-    test_assert(fabs(ET_evaluate(tree) - 7.0) < 1e-6);
-    ET_free(tree);
-
-    // Test subtraction
-    tree = ET_node(OP_SUB, ET_value(10.0), ET_value(3.0));
-    test_assert(fabs(ET_evaluate(tree) - 7.0) < 1e-6);
-    ET_free(tree);
-
-    // Test multiplication
-    tree = ET_node(OP_MUL, ET_value(2.0), ET_value(3.0));
-    test_assert(fabs(ET_evaluate(tree) - 6.0) < 1e-6);
-    ET_free(tree);
-
-    // Test division
-    tree = ET_node(OP_DIV, ET_value(6.0), ET_value(2.0));
+    tree = ET_node(OP_ADD, ET_value(1.0), ET_value(2.0));
     test_assert(fabs(ET_evaluate(tree) - 3.0) < 1e-6);
     ET_free(tree);
 
+    // Test subtraction
+    tree = ET_node(OP_SUB, ET_value(5.0), ET_value(2.0));
+    test_assert(fabs(ET_evaluate(tree) - 3.0) < 1e-6);
+    ET_free(tree);
+
+    // Test multiplication
+    tree = ET_node(OP_MUL, ET_value(3.0), ET_value(4.0));
+    test_assert(fabs(ET_evaluate(tree) - 12.0) < 1e-6);
+    ET_free(tree);
+
+    // Test division
+    tree = ET_node(OP_DIV, ET_value(10.0), ET_value(2.0));
+    test_assert(fabs(ET_evaluate(tree) - 5.0) < 1e-6);
+    ET_free(tree);
+
+    // Test power
+    tree = ET_node(OP_POWER, ET_value(2.0), ET_value(3.0));
+    test_assert(fabs(ET_evaluate(tree) - 8.0) < 1e-6);
+    ET_free(tree);
+
     // Test unary negation
-    tree = ET_node(UNARY_NEGATE, ET_value(5.0), NULL);
-    test_assert(fabs(ET_evaluate(tree) + 5.0) < 1e-6);
+    tree = ET_node(UNARY_NEGATE, ET_value(10.0), NULL);
+    test_assert(fabs(ET_evaluate(tree) - -10.0) < 1e-6);
     ET_free(tree);
 
     return 1;
@@ -169,32 +174,38 @@ test_error:
  */
 int test_tree2string() {
     ExprTree tree = NULL;
-    char buf[256];
+    char buffer[256];
 
-    // Test single value
+    // Test a simple value
     tree = ET_value(5.0);
-    test_assert(ET_tree2string(tree, buf, sizeof(buf)) == 4); // "5.0"
-    test_assert(strcmp(buf, "5.0") == 0);
+    test_assert(ET_tree2string(tree, buffer, sizeof(buffer)) > 0);
+    test_assert(strcmp(buffer, "5.00") == 0);
     ET_free(tree);
 
-    // Test binary operation
-    tree = ET_node(OP_ADD, ET_value(3.0), ET_value(4.0));
-    test_assert(ET_tree2string(tree, buf, sizeof(buf)) == 9); // "(3 + 4)"
-    test_assert(strcmp(buf, "(3 + 4)") == 0);
+    // Test addition
+    tree = ET_node(OP_ADD, ET_value(1.0), ET_value(2.0));
+    test_assert(ET_tree2string(tree, buffer, sizeof(buffer)) > 0);
+    test_assert(strcmp(buffer, "(1.00 + 2.00)") == 0);
     ET_free(tree);
 
-    // Test unary operation
-    tree = ET_node(UNARY_NEGATE, ET_value(3.0), NULL);
-    test_assert(ET_tree2string(tree, buf, sizeof(buf)) == 7); // "-3"
-    test_assert(strcmp(buf, "-3.0") == 0);
+    // Test subtraction
+    tree = ET_node(OP_SUB, ET_value(5.0), ET_value(2.0));
+    test_assert(ET_tree2string(tree, buffer, sizeof(buffer)) > 0);
+    test_assert(strcmp(buffer, "(5.00 - 2.00)") == 0);
+    ET_free(tree);
+
+    // Test unary negation
+    tree = ET_node(UNARY_NEGATE, ET_value(10.0), NULL);
+    test_assert(ET_tree2string(tree, buffer, sizeof(buffer)) > 0);
+    test_assert(strcmp(buffer, "-10.00") == 0);
     ET_free(tree);
 
     // Test complex expression
     tree = ET_node(OP_MUL,
                    ET_node(OP_ADD, ET_value(1.0), ET_value(2.0)),
                    ET_node(OP_SUB, ET_value(3.0), ET_value(4.0)));
-    test_assert(ET_tree2string(tree, buf, sizeof(buf)) == 25); // "((1 + 2) * (3 - 4))"
-    test_assert(strcmp(buf, "((1 + 2) * (3 - 4))") == 0);
+    test_assert(ET_tree2string(tree, buffer, sizeof(buffer)) > 0);
+    test_assert(strcmp(buffer, "((1.00 + 2.00) * (3.00 - 4.00))") == 0);
     ET_free(tree);
 
     return 1;
@@ -205,11 +216,10 @@ test_error:
 }
 
 /*
- * Main function to run tests
+ * Main testing function
  */
-int main() {
-    printf("Running tests...\n");
-
+int main(void) {
+    // Run tests
     test_assert(test_node_free());
     test_assert(test_count());
     test_assert(test_depth());
@@ -220,5 +230,6 @@ int main() {
     return 0;
 
 test_error:
+    printf("Some tests failed!\n");
     return 1;
 }

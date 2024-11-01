@@ -4,7 +4,7 @@
  * A dynamically allocated tree to handle arbitrary arithmetic
  * expressions
  *
- * Author: <your name here>
+ * Author: <Pauline Uwase>
  */
 
 #include <stdio.h>
@@ -34,66 +34,55 @@ struct _expr_tree_node {
  * 
  * Returns: A single character representing the ent
  */
-static char ExprNodeType_to_char(ExprNodeType ent)
-{
-
-  //
-  switch (ent) {
-     case VALUE: return 'v'; // value node
-     case UNARY_NEGATE: return '-'; // unary negation
-     case OP_ADD: return '+'; // addition
-     case OP_SUB: return '-'; // subtraction
-     case OP_MUL: return '*'; // multiplication
-     case OP_DIV: return '/'; // division
-     case OP_POWER: return '^'; // power
-     default: return '?'; // unknown type
+static char ExprNodeType_to_char(ExprNodeType ent) {
+    switch (ent) {
+        case OP_ADD: return '+';
+        case OP_SUB: return '-';
+        case OP_MUL: return '*';
+        case OP_DIV: return '/';
+        case OP_POWER: return '^';
+        case UNARY_NEGATE: return '-';
+        default: return '?';
     }
-  // TODO: Add your code here
-  //
-
 }
+
 
 
 // Documented in .h file
 ExprTree ET_value(double value) {
-    ExprTree new = (ExprTree) malloc(sizeof(struct _expr_tree_node));
-    assert(new); // Ensure memory was allocated
+    ExprTree new = (ExprTree)malloc(sizeof(struct _expr_tree_node));
+    assert(new);
     new->type = VALUE;
-    new->n.value = value; // Initialize the value
+    new->n.value = value;
     return new;
 }
 
-ExprTree ET_node(ExprNodeType op, ExprTree left, ExprTree right) {
-    ExprTree new = (ExprTree) malloc(sizeof(struct _expr_tree_node));
-    assert(new); // Ensure memory was allocated
-    new->type = op;
-    new->n.child[LEFT] = left; // Set the left child
-    new->n.child[RIGHT] = right; // Set the right child
-    return new;
-}
-
-  //
-  // TODO: Add your code here
 
 
 // Documented in .h file
-void ET_free(ExprTree tree)
-{
-  if (tree == NULL)
-    return;
-
-
-  if (tree->type != VALUE) { // Only free children if it's not a leaf
-      ET_free(tree->n.child[LEFT]);
-      ET_free(tree->n.child[RIGHT]);
-  }
-
-  free(tree); // Free the current node
-  // TODO: Add your code here
-  //
-
-  //return;
+ExprTree ET_node(ExprNodeType op, ExprTree left, ExprTree right) {
+    ExprTree new = (ExprTree)malloc(sizeof(struct _expr_tree_node));
+    assert(new);
+    new->type = op;
+    new->n.child[LEFT] = left;
+    new->n.child[RIGHT] = right;
+    return new;
 }
+
+
+
+// Documented in .h file
+void ET_free(ExprTree tree) {
+    if (tree == NULL) return;
+
+    if (tree->type != VALUE) {
+        ET_free(tree->n.child[LEFT]);
+        ET_free(tree->n.child[RIGHT]);
+    }
+
+    free(tree);
+}
+
 
 
 // Documented in .h file
@@ -110,115 +99,62 @@ int ET_count(ExprTree tree)
 
 
 // Documented in .h file
-//int ET_depth(ExprTree tree)
-//{
-  //assert(tree);
-
-  //if (tree == NULL) return 0; // No tree has a depth of 0
-
-    // Depth of the current node is 1 + max depth of its children
- // int left_depth = ET_depth(tree->n.child[LEFT]);
-  //int right_depth = ET_depth(tree->n.child[RIGHT]);
-
-  //return 1 + (left_depth > right_depth ? left_depth : right_depth);
-
 int ET_depth(ExprTree tree) {
-    if (tree == NULL) { 
-        return 0; // Base case: depth of a NULL tree is 0
-    }
+    assert(tree);
+    if (tree->type == VALUE) return 1;
 
-    if (tree->type == VALUE) {
-        return 1; // A single leaf node has depth 1
-    }
-
-    // Recursively calculate the depth of left and right subtrees
     int left_depth = ET_depth(tree->n.child[LEFT]);
     int right_depth = ET_depth(tree->n.child[RIGHT]);
-
-    // Return the maximum depth of the two subtrees + 1 for the current node
     return 1 + (left_depth > right_depth ? left_depth : right_depth);
 }
 
 
 
-  //
-  // TODO: Add your code here
-  //
-
-  //return 0;
-
-
 // Documented in .h file
-double ET_evaluate(ExprTree tree)
-{
-  assert(tree);
+double ET_evaluate(ExprTree tree) {
+    assert(tree);
+    if (tree->type == VALUE) return tree->n.value;
 
+    double left_val = ET_evaluate(tree->n.child[LEFT]);
+    double right_val = ET_evaluate(tree->n.child[RIGHT]);
 
-  //
-  // TODO: Add your code here
-  switch (tree->type) {
-        case VALUE:
-            return tree->n.value; // Return the value of the leaf node
-
-        case UNARY_NEGATE:
-            return -ET_evaluate(tree->n.child[LEFT]); // Negate the value of the left child
-
-        case OP_ADD:
-            return ET_evaluate(tree->n.child[LEFT]) + ET_evaluate(tree->n.child[RIGHT]); // Addition
-
-        case OP_SUB:
-            return ET_evaluate(tree->n.child[LEFT]) - ET_evaluate(tree->n.child[RIGHT]); // Subtraction
-
-        case OP_MUL:
-            return ET_evaluate(tree->n.child[LEFT]) * ET_evaluate(tree->n.child[RIGHT]); // Multiplication
-
-        case OP_DIV:
-            return ET_evaluate(tree->n.child[LEFT]) / ET_evaluate(tree->n.child[RIGHT]); // Division
-
-        case OP_POWER:
-            return pow(ET_evaluate(tree->n.child[LEFT]), ET_evaluate(tree->n.child[RIGHT])); // Power
-
-        default:
-            return 0.0; // Unknown type
+    switch (tree->type) {
+        case OP_ADD: return left_val + right_val;
+        case OP_SUB: return left_val - right_val;
+        case OP_MUL: return left_val * right_val;
+        case OP_DIV: return left_val / right_val;
+        case OP_POWER: return pow(left_val, right_val);
+        case UNARY_NEGATE: return -left_val;
+        default: return 0.0;
     }
-  //
-  //return 0.0;
 }
 
 
-// Documented in .h file
-size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz)
-{
-  assert(tree);
 
-  size_t written = 0;
+// Documented in .h file
+size_t ET_tree2string(ExprTree tree, char *buf, size_t buf_sz) {
+    assert(tree);
+    if (buf_sz == 0) return 0;
 
     if (tree->type == VALUE) {
-        written = snprintf(buf, buf_sz, "%.2f", tree->n.value); // Format the value
-    } else {
-        // If we have space, write the operator first
-        char op_char = ExprNodeType_to_char(tree->type);
-        written = snprintf(buf, buf_sz, "%c ", op_char);
-
-        // Check for remaining space and write the left and right children
-        size_t left_written = ET_tree2string(tree->n.child[LEFT], buf + written, buf_sz - written);
-        if (left_written < buf_sz - written) {
-            written += left_written;
-            written += snprintf(buf + written, buf_sz - written, " "); // Add space
-        }
-
-        size_t right_written = ET_tree2string(tree->n.child[RIGHT], buf + written, buf_sz - written);
-        if (right_written < buf_sz - written) {
-            written += right_written;
-        }
+        // Use %g to automatically format without unnecessary decimal points for whole numbers
+        return snprintf(buf, buf_sz, "%g", tree->n.value);
     }
 
-    return written; // Return the total number of characters written
+    char op = ExprNodeType_to_char(tree->type);
+    
+    size_t left_len = ET_tree2string(tree->n.child[LEFT], buf, buf_sz);
+    if (left_len >= buf_sz - 1) return left_len;
 
+    buf[left_len] = op; // Add the operator
+    buf[left_len + 1] = '\0'; // Null terminate after operator
+    size_t right_len = ET_tree2string(tree->n.child[RIGHT], buf + left_len + 1, buf_sz - left_len - 1);
 
-  //
-  // TODO: Add your code here
-  //
+    if (right_len + left_len + 1 >= buf_sz) {
+        buf[buf_sz - 1] = '$'; // Indicate truncation with '$'
+        buf[buf_sz - 2] = '\0'; // Ensure the buffer is null-terminated
+        return buf_sz - 1; // Return size indicating truncation
+    }
+
+    return left_len + 1 + right_len; // Return total length of the string
 }
-
-
